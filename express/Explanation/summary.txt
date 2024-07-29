@@ -1,0 +1,131 @@
+Summary of Express.js Application
+
+This Express.js application is a simple server that manages information about a user named John and his kidney health status. It supports basic CRUD (Create, Read, Update, Delete) operations through HTTP methods (GET, POST, PUT, DELETE).
+
+Key Components:
+
+1. Express.js Setup:
+   - The application uses the Express.js framework to handle HTTP requests and responses.
+   - express.json() middleware is used to parse JSON request bodies.
+
+2. Users Data Structure:
+   - A single user object is defined with the name 'John' and an array of kidney objects, each having a healthy property indicating the health status of the kidney.
+
+3. Routes and Endpoints:
+
+   - GET /:
+     - Retrieves the status of John's kidneys.
+     - Calculates the total number of kidneys, the number of healthy kidneys, and the number of unhealthy kidneys.
+     - Responds with a JSON object containing these details.
+     
+   - POST /:
+     - Adds a new kidney status to John's kidneys.
+     - Expects a JSON body with an isHealthy property.
+     - Updates the kidneys array and responds with a confirmation message.
+     
+   - PUT /:
+     - Updates all of John's kidneys to be healthy.
+     - Iterates through the kidneys array and sets each healthy property to true.
+     - Responds with a confirmation message.
+     
+   - DELETE /:
+     - Removes all unhealthy kidneys from John's kidneys array.
+     - Iterates through the kidneys array and keeps only the healthy kidneys.
+     - Updates the kidneys array and responds with a confirmation message.
+
+4. Server Initialization:
+   - The server listens on port 4000.
+   - Logs a message to the console when the server is running.
+
+Example Code:
+
+const express = require("express");
+
+const app = express();
+
+app.use(express.json());
+
+var users = [{
+    name: 'john',
+    kidney: [{ healthy: false }]
+}];
+
+app.get("/", function (req, res) {
+    const johnKidneys = users[0].kidney;
+    const numberOfKidneys = johnKidneys.length;
+    let numberOfHealthyKidneys = 0;
+    
+    for (let i = 0; i < johnKidneys.length; i++) {
+        if (johnKidneys[i].healthy) {
+            numberOfHealthyKidneys++;
+        }
+    }
+    
+    const numberOfUnhealthyKidneys = numberOfKidneys - numberOfHealthyKidneys;
+    
+    res.json({
+        numberOfKidneys,
+        numberOfHealthyKidneys,
+        numberOfUnhealthyKidneys
+    });
+});
+
+app.post("/", function (req, res) {
+    const isHealthy = req.body.isHealthy;
+    users[0].kidney.push({
+        healthy: isHealthy
+    });
+    res.json({
+        msg: "done"
+    });
+});
+
+app.put("/", function (req, res) {
+    for (let i = 0; i < users[0].kidney.length; i++) {
+        users[0].kidney[i].healthy = true;
+    }
+    res.json({
+        msg: "All kidneys updated to healthy"
+    });
+});
+
+app.delete("/", function (req, res) {
+    const newKidneys = [];
+    for (let i = 0; i < users[0].kidney.length; i++) {
+        if (users[0].kidney[i].healthy) {
+            newKidneys.push({
+                healthy: true
+            });
+        }
+    }
+    users[0].kidney = newKidneys;
+    res.json({
+        msg: "Unhealthy kidneys removed"
+    });
+});
+
+app.listen(4000, () => {
+    console.log("Server is running on port 4000");
+});
+
+How to Run the Server:
+
+1. Ensure Node.js is installed on your system.
+2. Install Express.js if not already installed:
+   npm install express
+3. Save the code in a file, e.g., server.js.
+4. Start the server:
+   node server.js
+5. The server will run on http://localhost:4000.
+
+Testing the Endpoints:
+
+- GET Request:
+  curl http://localhost:4000/
+- POST Request:
+  curl -X POST http://localhost:4000/ -H "Content-Type: application/json" -d '{"isHealthy": true}'
+- PUT Request:
+  curl -X PUT http://localhost:4000/
+- DELETE Request:
+  curl -X DELETE http://localhost:4000/
+
